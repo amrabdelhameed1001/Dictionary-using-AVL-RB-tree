@@ -86,5 +86,68 @@ public class AVLTree {
         return node;
     }
 
+    Node delete(Node root , int key){
+        if(root == null) {
+            return root;
+        }
+        if(key < root.key){
+            root.left = delete(root.left,key);
+        }
+        else if(key > root.key){
+            root.right=delete(root.right,key);
+        }
+
+        else{
+
+            if((root.left == null) || (root.right == null)){
+                Node temp = null;
+                if(temp == root.left){
+                    temp = root.right;
+                }
+                else{
+                    temp = root.left;
+                }
+
+                if(temp == null){
+                    temp = root;
+                    root=null;
+                }
+                else{
+                    root = temp;
+                }
+            }
+
+            else{
+                Node temp = min_node(root.right);
+                root.key = temp.key;
+                root.right = delete(root.right, temp.key);
+            }
+        }
+
+        if(root == null){
+            return root;
+        }
+
+        root.height=max(height(root.left), height(root.right))+1;
+
+        if(balance(root) > 1 && balance(root.left) >=0){
+            return rightRotate(root);
+        }
+        if(balance(root) > 1 && balance(root.left) < 0){
+            root.left = leftRotate(root.left);
+            return rightRotate(root);
+        }
+
+        if(balance(root) < -1 && balance(root.right) <= 0){
+            return leftRotate(root);
+        }
+
+        if(balance(root) < -1 && balance(root.right)>0){
+            root.right = rightRotate(root.right);
+            return  leftRotate(root);
+        }
+        return root;
+    }
+
 
 }
