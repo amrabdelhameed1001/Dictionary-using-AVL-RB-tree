@@ -7,6 +7,15 @@ public class AVLTree {
         return N.height;
     }
 
+    int size;
+    public AVLTree(){
+        root = null;
+        size = 0;
+    }
+    public int size(){
+        return size;
+    }
+
     int max(int a , int b){
         return (a>b) ? a : b;
     }
@@ -51,6 +60,7 @@ public class AVLTree {
 
     Node insert(Node node, int key){
         if(node == null){
+            size++;
             return (new Node(key));
         }
 
@@ -88,6 +98,7 @@ public class AVLTree {
 
     Node delete(Node root , int key){
         if(root == null) {
+            size--;
             return root;
         }
         if(key < root.key){
@@ -150,4 +161,18 @@ public class AVLTree {
     }
 
 
+    public boolean search(Node node , int key){
+        if(node == null){
+            return false;
+        }
+        if(key == node.key){
+            return true;
+        }
+        if(key < node.key){
+            return search(node.left, key);
+        }
+        else{
+            return search(node.right, key);
+        }
+    }
 }
