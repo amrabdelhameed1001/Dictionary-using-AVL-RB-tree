@@ -110,21 +110,34 @@ public class Main {
                 case 1:
                     System.out.println("Word: ");
                     Object insertWord = input.nextLine();
+
+                    long startTime = System.nanoTime();
                     String insertStatus = tree.insert(insertWord)?"Successful": "Failed";
-                    System.out.println("Insert Status: " + insertStatus + "\n");
+
+                    long endTime = System.nanoTime();
+                    System.out.println("Insert Status: " + insertStatus);
+                    System.out.println("time taken: " + (endTime - startTime)/1000 + " microseconds \n");
                     break;
                 case 2:
                     System.out.println("Word: ");
                     Object deleteWord = input.nextLine();
+                    long startDTime = System.nanoTime();
                     String deleteStatus = tree.delete(deleteWord)?"Successful": "Failed";
-                    System.out.println("Delete Status: " + deleteStatus + "\n");
+                    long endDTime = System.nanoTime();
+                    System.out.println("Delete Status: " + deleteStatus);
+                    System.out.println("time taken: " + (endDTime - startDTime)/1000 + " microseconds \n");
                     break;
                 case 3:
                     System.out.println("Word: ");
                     Object searchWord = input.nextLine();
+
+                    long startSTime = System.nanoTime();
                     String searchStatus = tree.search(searchWord)?"Successful": "Failed";
-                    System.out.println("Search Status: " + searchStatus + "\n");
+                    long endSTime = System.nanoTime();
+                    System.out.println("Search Status: " + searchStatus);
+                    System.out.println("time taken: " + (endSTime - startSTime)/1000 + " microseconds \n");
                     break;
+
                 case 4://Batch Insert: todo
                     System.out.println("Enter the file path: ");
                     String filePath = input.nextLine();
