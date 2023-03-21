@@ -1,195 +1,215 @@
-public class AVLTree {
-    Node root;
-    int height(Node N){
-        if(N== null){
-            return 0;
+import java.util.*;
+
+public class AVLTree<K extends Comparable<K>> {
+    private class Node {
+        K key;
+        int height;
+        Node left, right;
+
+        Node(K key) {
+            this.key = key;
+            this.height = 1;
         }
-        return N.height;
     }
 
+    private Node root;
+    private int size;
 
-
-    int size;
-    public AVLTree(){
-        root = null;
-        size = 0;
-    }
-    public int size(){
-        return size;
+    public AVLTree() {
+        this.root = null;
+        this.size = 0;
     }
 
-    int max(int a , int b){
-        return (a>b) ? a : b;
-    }
-
-    int balance(Node N){
-        if(N==null)
-            return 0;
-        return height(N.left) - height(N.right);
-    }
-
-    Node min_node(Node node){
-        Node current = node;
-
-        while(current.left != null)
-            current = current.left;
-        return current;
-    }
-
-    Node rightRotate(Node y){
-        Node x = y.left;
-        Node t2 = x.right;
-
-        x.right = y;
-        y.left = t2;
-        y.height = max(height(y.left),height(y.right))+1;
-
-        return x;
-    }
-    
-    Node leftRotate(Node x){
-        Node y = x.right;
-        Node t2 = y.left;
-        
-        y.left =x;
-        x.right = t2;
-
-        x.height = max(height(x.left),height(x.right))+1;
-        y.height = max(height(y.left),height(y.right))+1;
-
-        return y;
-    }
-
-    Node insert(Node node, int key){
-        if(node == null){
-            size++;
-            //System.out.println("The word has been inserted");
-            return (new Node(key));
+    public boolean insert(K key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Null key not allowed");
         }
 
-
-        if(key < node.key){
-            node.left = insert(node.left , key);
+        if (search(key)) {
+            return false;
         }
-        else if (key > node.key){
+
+        root = insert(root, key);
+        size++;
+        return true;
+    }
+
+    private Node insert(Node node, K key) {
+        if (node == null) {
+            return new Node(key);
+        }
+
+        int cmp = key.compareTo(node.key);
+        if (cmp < 0) {
+            node.left = insert(node.left, key);
+        } else {
             node.right = insert(node.right, key);
         }
-        else{
-            //System.out.println("The word is already exist");
-            return node;
-        }
 
-        node.height = 1+ max(height(node.left),height(node.right));
+        node.height = 1 + Math.max(height(node.left), height(node.right));
+        int balance = balance(node);
 
-        if(balance(node) > 1 && key < node.left.key){
+        if (balance > 1 && key.compareTo(node.left.key) < 0) {
             return rightRotate(node);
         }
-        if(balance(node) < -1 && key > node.right.key){
+
+        if (balance < -1 && key.compareTo(node.right.key) > 0) {
             return leftRotate(node);
         }
-        if(balance(node) > 1 && key > node.left.key){
+
+        if (balance > 1 && key.compareTo(node.left.key) > 0) {
             node.left = leftRotate(node.left);
             return rightRotate(node);
         }
 
-        if(balance(node) < -1 && key < node.right.key){
+        if (balance < -1 && key.compareTo(node.right.key) < 0) {
             node.right = rightRotate(node.right);
             return leftRotate(node);
         }
 
+        return node;
+    }
+
+    public boolean delete(K key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Null key not allowed");
+        }
+
+        if (!search(key)) {
+            return false;
+        }
+
+        root = delete(root, key);
+        size--;
+        return true;
+    }
+    private Node delete(Node node, K key) {
+        if (node == null) {
+            return null;
+        }
+
+        int cmp = key.compareTo(node.key);
+        if (cmp < 0) {
+            node.left = delete(node.left, key);
+        } else if (cmp > 0) {
+            node.right = delete(node.right, key);
+        } else {
+            if (node.left == null || node.right == null) {
+                node = (node.left == null) ? node.right : node.left;
+            } else {
+                Node temp = findMin(node.right);
+                node.key = temp.key;
+                node.right = delete(node.right, temp.key);
+            }
+        }
+
+        if (node == null) {
+            return node;
+        }
+
+        node.height = 1 + Math.max(height(node.left), height(node.right));
+        int balance = balance(node);
+
+        if (balance > 1 && balance(node.left) >= 0) {
+            return rightRotate(node);
+        }
+
+        if (balance > 1 && balance(node.left) < 0) {
+            node.left = leftRotate(node.left);
+            return rightRotate(node);
+        }
+
+        if (balance < -1 && balance(node.right) <= 0) {
+            return leftRotate(node);
+        }
+
+        if (balance < -1 && balance(node.right) > 0) {
+            node.right = rightRotate(node.right);
+            return leftRotate(node);
+        }
 
         return node;
     }
 
-
-    public void insert(String key){
-        int intkey = key.hashCode();
-        root = insert(root,intkey);
+    public boolean search(K key) {
+        return search(root, key);
     }
 
-    Node delete(Node root , int key){
-        if(root == null) {
-            size--;
-
-            return root;
-        }
-        if(key < root.key){
-            root.left = delete(root.left,key);
-        }
-        else if(key > root.key){
-            root.right=delete(root.right,key);
-        }
-
-        else{
-
-            if((root.left == null) || (root.right == null)){
-                Node temp = null;
-                if(temp == root.left){
-                    temp = root.right;
-                }
-                else{
-                    temp = root.left;
-                }
-
-                if(temp == null){
-                    temp = root;
-                    root=null;
-                }
-                else{
-                    root = temp;
-                }
-            }
-
-            else{
-                Node temp = min_node(root.right);
-                root.key = temp.key;
-                root.right = delete(root.right, temp.key);
-            }
-        }
-
-        if(root == null){
-
-            return root;
-        }
-
-        root.height=max(height(root.left), height(root.right))+1;
-
-        if(balance(root) > 1 && balance(root.left) >=0){
-            return rightRotate(root);
-        }
-        if(balance(root) > 1 && balance(root.left) < 0){
-            root.left = leftRotate(root.left);
-            return rightRotate(root);
-        }
-
-        if(balance(root) < -1 && balance(root.right) <= 0){
-            return leftRotate(root);
-        }
-
-        if(balance(root) < -1 && balance(root.right)>0){
-            root.right = rightRotate(root.right);
-            return  leftRotate(root);
-        }
-        return root;
-    }
-
-    public void delete(String key){
-        int intkey = key.hashCode();
-        root = delete(root,intkey);
-    }
-
-    public boolean search(Node node , int key){
-        if(node == null){
+    private boolean search(Node node, K key) {
+        if (node == null) {
             return false;
         }
-        if(key == node.key){
+
+        int cmp = key.compareTo(node.key);
+        if (cmp == 0) {
             return true;
-        }
-        if(key < node.key){
+        } else if (cmp < 0) {
             return search(node.left, key);
-        }
-        else{
+        } else {
             return search(node.right, key);
         }
     }
+
+    public int height() {
+        return height(root);
+    }
+
+    private int height(Node node) {
+        if (node == null) {
+            return 0;
+        }
+
+        return node.height;
+    }
+
+    public int size() {
+        return size;
+    }
+
+    private int balance(Node node) {
+        if (node == null) {
+            return 0;
+        }
+
+        return height(node.left) - height(node.right);
+    }
+
+
+    private Node rightRotate(Node node) {
+        Node newRoot = node.left;
+        node.left = newRoot.right;
+        newRoot.right = node;
+
+        node.height = 1 + Math.max(height(node.left), height(node.right));
+        newRoot.height = 1 + Math.max(height(newRoot.left), height(newRoot.right));
+
+        return newRoot;
+    }
+
+    private Node leftRotate(Node node) {
+        Node newRoot = node.right;
+        node.right = newRoot.left;
+        newRoot.left = node;
+
+        node.height = 1 + Math.max(height(node.left), height(node.right));
+        newRoot.height = 1 + Math.max(height(newRoot.left), height(newRoot.right));
+
+        return newRoot;
+    }
+
+
+
+    private Node findMin(Node node) {
+        if (node == null) {
+            return null;
+        }
+
+        if (node.left == null) {
+            return node;
+        }
+
+        return findMin(node.left);
+    }
+
+
 }
