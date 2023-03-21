@@ -7,6 +7,8 @@ public class AVLTree {
         return N.height;
     }
 
+
+
     int size;
     public AVLTree(){
         root = null;
@@ -61,6 +63,7 @@ public class AVLTree {
     Node insert(Node node, int key){
         if(node == null){
             size++;
+            //System.out.println("The word has been inserted");
             return (new Node(key));
         }
 
@@ -72,6 +75,7 @@ public class AVLTree {
             node.right = insert(node.right, key);
         }
         else{
+            //System.out.println("The word is already exist");
             return node;
         }
 
@@ -93,12 +97,20 @@ public class AVLTree {
             return leftRotate(node);
         }
 
+
         return node;
+    }
+
+
+    public void insert(String key){
+        int intkey = key.hashCode();
+        root = insert(root,intkey);
     }
 
     Node delete(Node root , int key){
         if(root == null) {
             size--;
+
             return root;
         }
         if(key < root.key){
@@ -136,6 +148,7 @@ public class AVLTree {
         }
 
         if(root == null){
+
             return root;
         }
 
@@ -160,6 +173,10 @@ public class AVLTree {
         return root;
     }
 
+    public void delete(String key){
+        int intkey = key.hashCode();
+        root = delete(root,intkey);
+    }
 
     public boolean search(Node node , int key){
         if(node == null){
