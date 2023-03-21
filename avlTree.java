@@ -24,6 +24,7 @@ public class avlTree<K extends Comparable<K>> implements bstTree{
         }
 
         if (search(key)) {
+            System.out.println("Value " + key + " Already Exists!!");
             return false;
         }
 
@@ -74,6 +75,7 @@ public class avlTree<K extends Comparable<K>> implements bstTree{
         }
 
         if (!search(key)) {
+            System.out.println(key + " Doesn't Exist!!");
             return false;
         }
 
