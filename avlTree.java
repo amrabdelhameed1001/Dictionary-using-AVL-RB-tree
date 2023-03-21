@@ -1,13 +1,11 @@
-import java.util.*;
-
-public class AVLTree<K extends Comparable<K>> {
+public class avlTree<K extends Comparable<K>> implements bstTree{
     private class Node {
         K key;
         int height;
         Node left, right;
 
-        Node(K key) {
-            this.key = key;
+        Node(Comparable key) {
+            this.key = (K) key;
             this.height = 1;
         }
     }
@@ -15,12 +13,12 @@ public class AVLTree<K extends Comparable<K>> {
     private Node root;
     private int size;
 
-    public AVLTree() {
+    public avlTree() {
         this.root = null;
         this.size = 0;
     }
 
-    public boolean insert(K key) {
+    public <K> boolean insert(K key) {
         if (key == null) {
             throw new IllegalArgumentException("Null key not allowed");
         }
@@ -29,12 +27,12 @@ public class AVLTree<K extends Comparable<K>> {
             return false;
         }
 
-        root = insert(root, key);
+        root = insert(root, (Comparable) key);
         size++;
         return true;
     }
 
-    private Node insert(Node node, K key) {
+    private <K> Node insert(Node node, Comparable key) {
         if (node == null) {
             return new Node(key);
         }
@@ -70,7 +68,7 @@ public class AVLTree<K extends Comparable<K>> {
         return node;
     }
 
-    public boolean delete(K key) {
+    public <K> boolean delete(K key) {
         if (key == null) {
             throw new IllegalArgumentException("Null key not allowed");
         }
@@ -79,16 +77,16 @@ public class AVLTree<K extends Comparable<K>> {
             return false;
         }
 
-        root = delete(root, key);
+        root = delete(root, (Comparable) key);
         size--;
         return true;
     }
-    private Node delete(Node node, K key) {
+    private <K> Node delete(Node node, Comparable<K> key) {
         if (node == null) {
             return null;
         }
 
-        int cmp = key.compareTo(node.key);
+        int cmp = key.compareTo((K) node.key);
         if (cmp < 0) {
             node.left = delete(node.left, key);
         } else if (cmp > 0) {
@@ -131,16 +129,16 @@ public class AVLTree<K extends Comparable<K>> {
         return node;
     }
 
-    public boolean search(K key) {
-        return search(root, key);
+    public <K> boolean search(K key) {
+        return search(root, (Comparable) key);
     }
 
-    private boolean search(Node node, K key) {
+    private <K> boolean search(Node node, Comparable<K> key) {
         if (node == null) {
             return false;
         }
 
-        int cmp = key.compareTo(node.key);
+        int cmp = key.compareTo((K)node.key);
         if (cmp == 0) {
             return true;
         } else if (cmp < 0) {
@@ -210,6 +208,23 @@ public class AVLTree<K extends Comparable<K>> {
 
         return findMin(node.left);
     }
-
-
+    public void printTree(){
+        printTree(root);
+    }
+    public void printTree(Node node){
+        if(node == null)
+            return;
+        System.out.print("Node: " + node.key);
+        if(node.left != null)
+            System.out.print(" l: " + node.left.key);
+        else
+            System.out.print(" l: null");
+        if(node.right != null)
+            System.out.print(" r: " + node.right.key);
+        else
+            System.out.print(" r: null");
+        System.out.println();
+        printTree(node.left);
+        printTree(node.right);
+    }
 }
