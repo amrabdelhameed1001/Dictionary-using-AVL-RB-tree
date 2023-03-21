@@ -1,8 +1,10 @@
-public class rbTree<T extends Comparable<T>> {
+public class rbTree<T extends Comparable<T>> implements bstTree{
     rbNode<T> root;
     private int size;
-    public <T> void insert(T newValue){
-        insertNode(newValue);
+    public <T> boolean insert(T newValue){
+        boolean check = insertNode(newValue);
+        if(!check)
+            return check;
         rbNode node = getNodeOfValue((Comparable) newValue);
         if(node != root && node.parent != root){
             if(!node.parent.isBlack()){
@@ -52,14 +54,15 @@ public class rbTree<T extends Comparable<T>> {
             }
         }
         root.setAsBlack();
+        return check;
     }
-    private <T> void insertNode(T newValue){
+    private <T> boolean insertNode(T newValue){
         rbNode newNode = new rbNode();
         newNode.value = (Comparable) newValue;
         if(root == null){
             root = newNode;
             size++;
-            return;
+            return true;
         }
         rbNode compare= root;
         while(compare != null){
@@ -70,7 +73,7 @@ public class rbTree<T extends Comparable<T>> {
                     compare.rChild = newNode;
                     newNode.parent = compare;
                     size++;
-                    return;
+                    return true;
                 }
             }else if(compare.value.compareTo(newNode.value) > 0) {
                 if(compare.lChild != null){
@@ -79,12 +82,14 @@ public class rbTree<T extends Comparable<T>> {
                     compare.lChild = newNode;
                     newNode.parent = compare;
                     size++;
-                    return;
+                    return true;
                 }
             }else {
                 System.out.println("Value " + newValue + " Already Exists!!");
+                return false;
             }
         }
+        return false;
     }
 
     private void handleDoubleBlack(rbNode node, rbNode parent){
@@ -209,32 +214,23 @@ public class rbTree<T extends Comparable<T>> {
             handleDoubleBlack(child, parent);
         }
     }
-
-    public <T> void deleteNode(T value){
+    public <T> boolean delete(T value){
         rbNode deletedNode;
         if (size == 0) {
             System.out.println("Value Doesn't Exist!!");
-            return;
+            return false;
         }
         rbNode node = getNodeOfValue((Comparable)value);
         if(node == null)
-            return;
+            return false;
         //Case 1: No Children
         if(node.lChild == null && node.rChild == null){
             if(node == root){
                 root = null;
                 size = 0;
-                return;
+                return true;
             }
-
             deletedNode = node;
-
-            /*if(node != root && node == node.parent.rChild){
-                node.parent.rChild = null;
-            }else if(node != root){
-                node.parent.lChild = null;
-            }
-            node.parent = null;*/
         }
         //Case 2: Has Only Left Child
         else if(node.rChild == null){
@@ -258,6 +254,7 @@ public class rbTree<T extends Comparable<T>> {
         }
         deleteRB(deletedNode);
         size--;
+        return true;
     }
     public void rightRotate(Comparable<T> value){
         rbNode node = getNodeOfValue(value);
@@ -319,17 +316,33 @@ public class rbTree<T extends Comparable<T>> {
         node.lChild = parent;
         parent.parent = node;
     }
-    public int getHeight(){
+    public int getBlackHeight(){
+        if(size == 0)
+            return 0;
         rbNode node = root;
-        return 1 + Math.max(getHeight(node.lChild), getHeight(node.rChild));
+        return 1 + getBlackHeight(node.lChild);
     }
-    public int getHeight(rbNode node){
+    public int getBlackHeight(rbNode node){
+        if(node == null)
+            return 1;
+        if(node.isBlack())
+            return 1 + getBlackHeight(node.lChild);
+        else
+            return getBlackHeight(node.lChild);
+    }
+    public int height(){
+        if(size == 0)
+            return 0;
+        rbNode node = root;
+        return 1 + Math.max(height(node.lChild), height(node.rChild));
+    }
+    public int height(rbNode node){
         if(node == null)
             return 0;
-        return 1 + Math.max(getHeight(node.lChild), getHeight(node.rChild));
+        return 1 + Math.max(height(node.lChild), height(node.rChild));
     }
-    public int getHeight(Comparable<T> value){
-        return getHeight(getNodeOfValue(value));
+    public int height(Comparable<T> value){
+        return height(getNodeOfValue(value));
     }
     private rbNode getNodeOfValue(Comparable<T> value){
         if(root == null)
@@ -380,7 +393,19 @@ public class rbTree<T extends Comparable<T>> {
             printTree(node.rChild);
     }
 
-    public int getSize() {
+    public int size() {
         return size;
+    }
+    public <T> boolean search(T value){
+        rbNode node = root;
+        while(node != null){
+            if(node.value.compareTo(value) > 0)
+                node = node.lChild;
+            else if(node.value.compareTo(value) < 0)
+                node = node.rChild;
+            else
+                return true;
+        }
+        return false;
     }
 }
