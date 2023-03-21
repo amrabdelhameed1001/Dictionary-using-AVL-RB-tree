@@ -147,18 +147,22 @@ public class Main {
                     break;
                 case 5://Batch Delete: todo
 
-                    try (BufferedReader br = new BufferedReader(new FileReader("input.txt"))) {
-                        String line;
-                        int deleteCount = 0;
-                        while ((line = br.readLine()) != null) {
-                            boolean deletedStatus = tree.delete(line);
-                            if (deletedStatus) {
-                                deleteCount++;
+                    System.out.println("Enter the file path: ");
+                    String deleteFilePath = input.nextLine();
+                    try (BufferedReader reader = new BufferedReader(new FileReader(deleteFilePath))) {
+                        String word;
+                        int successCount = 0, failCount = 0;
+                        while ((word = reader.readLine()) != null) {
+                            if (tree.delete(word)) {
+                                successCount++;
+                            } else {
+                                failCount++;
                             }
                         }
-                        System.out.println("Deleted " + deleteCount + " words from the tree\n");
+                        System.out.println("Batch Delete Complete:");
+                        System.out.println("Success: " + successCount + " Failure: " + failCount + "\n");
                     } catch (IOException e) {
-                        System.out.println("Error reading file: " + e.getMessage());
+                        System.out.println("Error: " + e.getMessage() + "\n");
                     }
                     break;
                 case 6:
