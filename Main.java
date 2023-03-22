@@ -141,6 +141,8 @@ public class Main {
                 case 4://Batch Insert: todo
                     System.out.println("Enter the file path: ");
                     String filePath = input.nextLine();
+
+                    long startbiTime = System.nanoTime();
                     try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
                         String word;
                         int successCount = 0, failCount = 0;
@@ -151,8 +153,10 @@ public class Main {
                                 failCount++;
                             }
                         }
+                        long endbiTime = System.nanoTime();
                         System.out.println("Batch Insert Complete:");
-                        System.out.println("Success: " + successCount + " Failure: " + failCount + "\n");
+                        System.out.println("Success: " + successCount + " Failure: " + failCount);
+                        System.out.println("time taken: " + (endbiTime - startbiTime)/1000 + " microseconds");
                     } catch (IOException e) {
                         System.out.println("Error: " + e.getMessage() + "\n");
                     }
@@ -162,6 +166,7 @@ public class Main {
 
                     System.out.println("Enter the file path: ");
                     String deleteFilePath = input.nextLine();
+                    long startbdTime = System.nanoTime();
                     try (BufferedReader reader = new BufferedReader(new FileReader(deleteFilePath))) {
                         String word;
                         int successCount = 0, failCount = 0;
@@ -172,17 +177,25 @@ public class Main {
                                 failCount++;
                             }
                         }
+                        long endbdTime = System.nanoTime();
                         System.out.println("Batch Delete Complete:");
-                        System.out.println("Success: " + successCount + " Failure: " + failCount + "\n");
+                        System.out.println("Success: " + successCount + " Failure: " + failCount);
+                        System.out.println("time taken: " + (endbdTime - startbdTime)/1000 + " microseconds \n");
                     } catch (IOException e) {
                         System.out.println("Error: " + e.getMessage() + "\n");
                     }
                     break;
                 case 6:
-                    System.out.println("Size: " + tree.size() + "\n");
+                    long sSize = System.nanoTime();
+                    System.out.println("Size: " + tree.size() );
+                    long eSize = System.nanoTime();
+                    System.out.println("time taken: " + (eSize-sSize)/1000 + " microsecnds\n");
                     break;
                 case 7:
-                    System.out.println("Height: " + tree.height() + "\n");
+                    long shight = System.nanoTime();
+                    System.out.println("Height: " + tree.height());
+                    long ehight = System.nanoTime();
+                    System.out.println("time taken: " + (ehight-shight)/1000 + " microsecnds\n");
                     break;
                 case 8:
                     System.out.println("Are You Sure This Will Delete Your Current Tree!!\n1. Yes\t\t2. No");
