@@ -1,11 +1,19 @@
 public class rbTree<T extends Comparable<T>> implements bstTree{
     rbNode<T> root;
     private int size;
+
     public <T> boolean insert(T newValue){
-        boolean check = insertNode(newValue);
-        if(!check)
-            return check;
-        rbNode node = getNodeOfValue((Comparable) newValue);
+        rbNode node = insertNode(newValue);
+        if (node == null)
+            return false;
+        if(node.parent != null && !node.parent.isBlack()){
+            return insertRedNode(node);
+        }
+        return true;
+    }
+    private  <T> boolean insertRedNode(rbNode node){
+        if(node == null)
+            return false;
         if(node != root && node.parent != root){
             if(!node.parent.isBlack()){
                 if(node.parent.parent.lChild == node.parent){
@@ -14,7 +22,8 @@ public class rbTree<T extends Comparable<T>> implements bstTree{
                         node.parent.parent.setAsRed();;
                         node.parent.parent.rChild.setAsBlack();
                         node.parent.setAsBlack();
-                        //Case 2: Uncle is Null Or Black
+                        return insertRedNode(node.parent.parent);
+                    //Case 2: Uncle is Null Or Black
                     }else{
                         //Case Of Left Right
                         if(node.parent.rChild == node){
@@ -22,11 +31,12 @@ public class rbTree<T extends Comparable<T>> implements bstTree{
                             rightRotate(node.value);
                             node.setAsBlack();
                             node.rChild.setAsRed();
-                            //Case Of Left Left
+                        //Case Of Left Left
                         }else{
-                            rightRotate(node.parent.value);
-                            node.parent.setAsRed();
-                            node.parent.rChild.setAsRed();
+                            rbNode parent = node.parent;
+                            rightRotate(parent.value);
+                            parent.setAsRed();
+                            parent.rChild.setAsRed();
                         }
                     }
                 }else {
@@ -35,34 +45,36 @@ public class rbTree<T extends Comparable<T>> implements bstTree{
                         node.parent.parent.setAsRed();;
                         node.parent.parent.lChild.setAsBlack();
                         node.parent.setAsBlack();
+                        return insertRedNode(node.parent.parent);
                         //Case 2: Uncle is Null Or Black
                     }else{
                         //Case Of Right Left
-                        if(node.parent.rChild == node){
+                        if(node.parent.lChild == node){
                             rightRotate(node.value);
                             leftRotate(node.value);
                             node.setAsBlack();
                             node.lChild.setAsRed();
                             //Case Of Right Right
                         }else{
-                            leftRotate(node.parent.value);
-                            node.parent.setAsRed();
-                            node.parent.lChild.setAsRed();
+                            rbNode parent = node.parent;
+                            leftRotate(parent.value);
+                            parent.setAsBlack();
+                            parent.lChild.setAsRed();
                         }
                     }
                 }
             }
         }
         root.setAsBlack();
-        return check;
+        return true;
     }
-    private <T> boolean insertNode(T newValue){
+    private <T> rbNode insertNode(T newValue){
         rbNode newNode = new rbNode();
         newNode.value = (Comparable) newValue;
         if(root == null){
             root = newNode;
             size++;
-            return true;
+            return newNode;
         }
         rbNode compare= root;
         while(compare != null){
@@ -73,7 +85,7 @@ public class rbTree<T extends Comparable<T>> implements bstTree{
                     compare.rChild = newNode;
                     newNode.parent = compare;
                     size++;
-                    return true;
+                    return newNode;
                 }
             }else if(compare.value.compareTo(newNode.value) > 0) {
                 if(compare.lChild != null){
@@ -82,20 +94,23 @@ public class rbTree<T extends Comparable<T>> implements bstTree{
                     compare.lChild = newNode;
                     newNode.parent = compare;
                     size++;
-                    return true;
+                    return newNode;
                 }
             }else {
                 System.out.println("Value " + newValue + " Already Exists!!");
-                return false;
+                return null;
             }
         }
-        return false;
+        return null;
     }
 
     private void handleDoubleBlack(rbNode node, rbNode parent){
         if(node == root)
             return;
         rbNode sibling = node == parent.lChild? parent.rChild: parent.lChild;
+        if(sibling == null){
+            return;
+        }
         //Case 1: Sibling and Children are Black
         if(sibling.isBlack() &&
                 (sibling.lChild == null || sibling.lChild.isBlack()) &&
@@ -107,7 +122,7 @@ public class rbTree<T extends Comparable<T>> implements bstTree{
                 handleDoubleBlack(parent, parent.parent);
         }
         //Case 2" Sibling is Black and a Child is Red
-        else if(sibling.isBlack()){
+        else if(sibling == null || sibling.isBlack()){
             if(sibling == parent.rChild){
                 //Case: RL
                 if((sibling.rChild == null || sibling.rChild.isBlack()) &&
@@ -186,7 +201,7 @@ public class rbTree<T extends Comparable<T>> implements bstTree{
             if(node.lChild != null){
                 child = node.lChild;
             }else {
-                child = node.rChild;
+                 child = node.rChild;
             }
             child.parent = node.parent;
             if(node.parent.lChild == node)
@@ -198,7 +213,26 @@ public class rbTree<T extends Comparable<T>> implements bstTree{
             node.rChild = null;
             child.setAsBlack();
         }
-        //Case 3: Node and Children are Black
+        //Case 3: Node is Black And Child Is Red
+        else if(node.isBlack() &&
+                ((node.lChild != null && !node.lChild.isBlack())
+                || (node.rChild != null && !node.rChild.isBlack()))){
+            rbNode child;
+            if(node.lChild != null)
+                child = node.lChild;
+            else
+                child = node.rChild;
+            if(node.parent.lChild == node)
+                node.parent.lChild = child;
+            else
+                node.parent.rChild = child;
+            child.parent = node.parent;
+            child.setAsBlack();
+            node.parent = null;
+            node.lChild = null;
+            node.rChild = null;
+        }
+        //Case 4: Node and Children are Black
         else {
             rbNode child;
             rbNode parent = node.parent;
@@ -207,10 +241,14 @@ public class rbTree<T extends Comparable<T>> implements bstTree{
             else
                 child = node.rChild;
             if(node.parent.lChild == node)
-                node.parent.lChild = null;
+                node.parent.lChild = child;
             else
-                node.parent.rChild = null;
+                node.parent.rChild = child;
+            if(child != null)
+                child.parent = node.parent;
             node.parent = null;
+            node.lChild = null;
+            node.rChild = null;
             handleDoubleBlack(child, parent);
         }
     }
@@ -259,15 +297,12 @@ public class rbTree<T extends Comparable<T>> implements bstTree{
     public void rightRotate(Comparable<T> value){
         rbNode node = getNodeOfValue(value);
         if(node == root){
-            System.out.println("Can't Rotate The Root!!");
             return;
         }
         if(node == null){
-            System.out.println("Value Doesn't Exist!!");
             return;
         }
         if(node.parent.lChild != node){
-            System.out.println("Can't Rotate This Node!!");
             return;
         }
         rbNode parent = node.parent;
@@ -289,15 +324,12 @@ public class rbTree<T extends Comparable<T>> implements bstTree{
     public void leftRotate(Comparable<T> value){
         rbNode node = getNodeOfValue(value);
         if(node == root){
-            System.out.println("Can't Rotate The Root!!");
             return;
         }
         if(node == null){
-            System.out.println("Value Doesn't Exist!!");
             return;
         }
         if(node.parent.rChild != node){
-            System.out.println("Can't Rotate This Node!!");
             return;
         }
         rbNode parent = node.parent;
@@ -355,7 +387,7 @@ public class rbTree<T extends Comparable<T>> implements bstTree{
                 node = node.lChild;
             }
             if(node == null){
-                System.out.println("Value Doesn't Exist!!");
+                System.out.println("Value" + value + " Doesn't Exist!!");
                 break;
             }
         }
